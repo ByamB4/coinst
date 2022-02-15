@@ -66,17 +66,27 @@ const IHChart = () => {
   useEffect((): any => {
     const fetch = async () => {
       const resp = await IHCAPI();
-      console.log(resp);
+      const result = resp.map((item) => {
+        return {
+          time: new Date(item[0] * 1000)
+            .toISOString()
+            .split("T")[1]
+            .slice(0, 5),
+          mnt: item[1],
+        };
+      });
+      console.log("asdas", result);
+      setData(result);
     };
     return fetch();
-  }, [data]);
+  }, []);
 
   return (
     <Wrapper ref={chartRef}>
       <LineChart
-        width={500}
+        width={10000}
         height={300}
-        data={dataDef}
+        data={data}
         margin={{
           top: 5,
           right: 30,
@@ -84,18 +94,17 @@ const IHChart = () => {
           bottom: 5,
         }}
       >
-        <CartesianGrid strokeDasharray="3 3" />
-        <XAxis dataKey="name" />
+        <CartesianGrid strokeDasharray="5 5" />
+        <XAxis dataKey="time" />
         <YAxis />
         <Tooltip />
         <Legend />
         <Line
           type="monotone"
-          dataKey="pv"
+          dataKey="mnt"
           stroke="#8884d8"
           activeDot={{ r: 8 }}
         />
-        <Line type="monotone" dataKey="uv" stroke="#82ca9d" />
       </LineChart>
     </Wrapper>
   );
