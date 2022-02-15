@@ -8,11 +8,20 @@ import tzlocal
 
 OBJECT_ENDPOINT = 'https://blabla.cdn.com'
 STATIC_ROOT = 'static'
-
-# TODO: Change inst story fetch class
+users = [
+    {
+        'name': 'themunkhjin',
+        'id': '10803123624',
+    },
+    {
+        'name': 'trader.erkhemee',
+        'id': '7417135025'
+    }
+]
 
 
 def fetchStories():
+
     print(time.strftime("%A, %d. %B %Y %I:%M:%S %p"))
 
 
