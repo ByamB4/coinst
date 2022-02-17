@@ -8,7 +8,6 @@ const IHChart = dynamic(() => import("components/IHC"), {
 const Home: NextPage = () => {
   return (
     <div>
-      hey
       <IHChart />
     </div>
   );
