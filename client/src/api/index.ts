@@ -1,8 +1,16 @@
 export const IHCAPI = async () => {
   const symbol: string = "IHC/MNT";
-  const interval: number = 60;
-  const start: number = 1644738344;
-  const end: number = 1644826604;
+
+  // 86400 = 1 day
+  // 14400 = 4 hour
+  const interval: number = 14400;
+
+  // Monday, January 18, 2021 8:28:34 AM
+  const start: number = 1610958514;
+
+  // Current date
+  const end: number = Math.floor(+new Date() / 1000);
+
   let result: Array<any> = [];
 
   await fetch(

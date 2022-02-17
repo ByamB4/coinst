@@ -1,5 +1,4 @@
-import styled from "styled-components";
-import { useEffect, useRef, useState } from "react";
+import { FC, useEffect, useRef, useState } from "react";
 import {
   LineChart,
   Line,
@@ -57,9 +56,7 @@ const dataDef = [
   },
 ];
 
-const Wrapper = styled.div``;
-
-const IHChart = () => {
+const IHChart: FC = () => {
   const chartRef = useRef(null);
   const [data, setData] = useState<any>();
 
@@ -82,31 +79,33 @@ const IHChart = () => {
   }, []);
 
   return (
-    <Wrapper ref={chartRef}>
+    <div ref={chartRef}>
       <LineChart
-        width={10000}
-        height={300}
+        width={1500}
+        height={700}
         data={data}
         margin={{
-          top: 5,
-          right: 30,
-          left: 20,
-          bottom: 5,
+          top: 50,
+          right: 0,
+          left: 0,
+          bottom: 50,
         }}
       >
-        <CartesianGrid strokeDasharray="5 5" />
-        <XAxis dataKey="time" />
+        <CartesianGrid strokeDasharray="0 1" />
+        {/* <XAxis dataKey="time" /> */}
         <YAxis />
         <Tooltip />
-        <Legend />
+        {/* <Legend /> */}
         <Line
-          type="monotone"
+          type="basisOpen"
           dataKey="mnt"
-          stroke="#8884d8"
-          activeDot={{ r: 8 }}
+          dot={false}
+          stroke="#4714A1"
+          strokeWidth={1.5}
+          activeDot={{ r: 6 }}
         />
       </LineChart>
-    </Wrapper>
+    </div>
   );
 };
 
