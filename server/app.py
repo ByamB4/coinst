@@ -6,6 +6,7 @@ import os
 import boto3
 from apscheduler.schedulers.background import BackgroundScheduler
 import time
+from flask_cors import CORS
 
 
 S3 = boto3.client('s3')
@@ -117,9 +118,10 @@ class CoinstStory:
 
 
 app = Flask(__name__)
+CORS(app)
 
 
-@app.route("/", methods=["GET"])
+@app.route("/api/v1", methods=["GET"])
 def index() -> str:
     return jsonify({
         'status': 'ok',
@@ -127,7 +129,7 @@ def index() -> str:
     })
 
 
-@app.route("/themunkhjin/stories", methods=["GET"])
+@app.route("/api/v1/themunkhjin/stories", methods=["GET"])
 def munkhjinStories() -> str:
     USERNAME: str = 'themunkhjin'
     RESULT = []
@@ -147,7 +149,7 @@ def munkhjinStories() -> str:
     })
 
 
-@app.route("/trader.erkhemee/stories", methods=["GET"])
+@app.route("/api/v1/trader.erkhemee/stories", methods=["GET"])
 def erkhemeeStories() -> str:
     USERNAME: str = 'trader.erkhemee'
     RESULT = []
@@ -171,9 +173,10 @@ if __name__ == '__main__':
     coinst = CoinstStory()
     scheduler = BackgroundScheduler(
         daemon=True, timezone=tzlocal.get_localzone())
-    scheduler.add_job(coinst.start, 'interval', seconds=30)
+    scheduler.add_job(coinst.start, 'interval', minutes=5)
     scheduler.start()
     atexit.register(lambda: scheduler.shutdown())
 
     # Flask
-    app.run(host='0.0.0.0', port=9001, debug=True, use_reloader=False)
+    app.run(debug=True)
+    # app.run(host='0.0.0.0', port=5000, debug=True, use_reloader=False)
