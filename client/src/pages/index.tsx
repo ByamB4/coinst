@@ -77,7 +77,7 @@ const Home: NextPage = () => {
       );
       const tickers: any = await CoinhubService.postTickers();
       setIHC(tickers["IHC/MNT"]);
-      const resp = await CoinhubService.postDeals({
+      const resp: any = await CoinhubService.postDeals({
         symbol: "IHC/MNT",
         limit: 1000,
       });
