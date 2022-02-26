@@ -14,3 +14,8 @@ export interface ChartParams {
   // 86400 = 1 day
   interval: 14400 | 86400;
 }
+
+export interface DealsParams {
+  symbol: "IHC/MNT";
+  limit: number;
+}
