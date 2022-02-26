@@ -112,7 +112,7 @@ const Home: NextPage = () => {
         console.log(`[+] Stay`);
       }
       console.log("========= DEBUG =========");
-    }, 5000);
+    }, 300000);
 
     return () => clearInterval(interval);
   }, []);
