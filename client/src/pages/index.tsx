@@ -50,25 +50,27 @@ const Home: NextPage = () => {
     freeze: 0,
   });
 
-  // useEffect((): any => {
-  //   const fetch = async () => {
-  //     const initData: any = await CoinhubService.postInit();
-  //     setInit(initData);
-  //     setIhcBalance(
-  //       await CoinhubService.getBalanceBySymbol("IHC", initData.balance)
-  //     );
-  //     const tickers: any = await CoinhubService.postTickers();
-  //     setIHC(tickers["IHC/MNT"]);
-  //     const resp = await CoinhubService.postDeals({
-  //       symbol: "IHC/MNT",
-  //       limit: 100,
-  //     });
-  //     CoinhubService.processDeals(resp);
-  //   };
-  //   return fetch();
-  // }, []);
+  // const [latestPercent, setLatestPercent] = useState<number>(0);
+
+  useEffect((): any => {
+    const fetch = async () => {
+      const initData: any = await CoinhubService.postInit();
+      setInit(initData);
+      setIhcBalance(
+        await CoinhubService.getBalanceBySymbol("IHC", initData.balance)
+      );
+      const tickers: any = await CoinhubService.postTickers();
+      setIHC(tickers["IHC/MNT"]);
+      await CoinhubService.postDeals({
+        symbol: "IHC/MNT",
+        limit: 100,
+      });
+    };
+    return fetch();
+  }, []);
 
   useEffect(() => {
+    var latestPercent = 0;
     const interval = setInterval(async () => {
       const initData: any = await CoinhubService.postInit();
       setInit(initData);
@@ -79,25 +81,57 @@ const Home: NextPage = () => {
       setIHC(tickers["IHC/MNT"]);
       const resp: any = await CoinhubService.postDeals({
         symbol: "IHC/MNT",
-        limit: 1000,
+        limit: 100,
       });
-      CoinhubService.processDeals(resp);
+      const result = CoinhubService.processDeals(resp, latestPercent);
+      console.log(result.percent, latestPercent);
+      if (result.percent !== latestPercent) {
+        latestPercent = result.percent;
+      }
+      if (result.action === "buy") {
+        const mntBalance = await CoinhubService.getBalanceBySymbol(
+          "MNT",
+          initData.balance
+        );
+        const resp = await CoinhubService.orderCreate({
+          action: "buy",
+          amount: mntBalance.available,
+        });
+        console.log(`[+] Buy`);
+      }
+
+      if (result.action === "sell") {
+        const resp = await CoinhubService.orderCreate({
+          action: "sell",
+          amount: ihcBalance.available,
+        });
+        console.log(`[-] Sell`);
+      }
+
+      if (result.action === "stay") {
+        console.log(`[+] Stay`);
+      }
+      console.log("========= DEBUG =========");
     }, 5000);
 
     return () => clearInterval(interval);
   }, []);
 
-  const getUserTotalBalance = (): number =>
-    Math.floor(
-      ihcBalance.freeze * ihc.close + ihcBalance.available * ihc.close
-    );
+  const getUserTotalBalance = () => {
+    const a = init.balance.find((x: { symbol: string }) => x.symbol === "MNT");
+    if (a) {
+      return a.available + a.freeze;
+    }
+    return 0;
+  };
 
   return (
     <div className="bg-red-200 text-2xl p-40">
       <div>Current price: {ihc.close}</div>
       <div>User: {init.user.username}</div>
       <div>
-        User balance available ({ihcBalance.symbol}): {ihcBalance.available}
+        User balance available ({ihcBalance.symbol}): {ihcBalance.available} ={" "}
+        {ihcBalance.available * ihc.close}
       </div>
       <div>
         User balance freeze ({ihcBalance.symbol}): {ihcBalance.freeze}
