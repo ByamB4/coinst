@@ -60,15 +60,13 @@ const CoinhubService = {
   },
 
   orderCreate: (body: { action: "buy" | "sell"; amount: number }) => {
-    if (body.amount > 1000) {
-      rest.post(
-        `https://sapi.coinhub.mn/v1/order/create?userid=${
-          process.env.COINHUB_USERID
-        }&token=${process.env.COINHUB_TOKEN}&channel=coinhub-prd&amount=${
-          body.amount
-        }&side=${body.action === "buy" ? "2" : "1"}&market=IHC/MNT`
-      );
-    }
+    rest.post(
+      `https://sapi.coinhub.mn/v1/order/create?userid=${
+        process.env.COINHUB_USERID
+      }&token=${process.env.COINHUB_TOKEN}&channel=coinhub-prd&amount=${
+        body.amount
+      }&side=${body.action === "buy" ? "2" : "1"}&market=IHC/MNT`
+    );
   },
 };
 
