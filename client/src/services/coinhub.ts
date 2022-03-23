@@ -1,21 +1,48 @@
 import rest from "./api";
-import { DealsParams } from "./types";
+import { TOKEN_DIED } from "constants/text";
+import { DealsParams, PostInitResponse, TickersResponse } from "./types";
+import { IBalance } from "interfaces";
 
 const CoinhubService = {
-  postInit: () =>
-    rest.post(
+  postInit: async () => {
+    const resp = await rest.post<PostInitResponse>(
       `https://sapi.coinhub.mn//v1/init?userid=${process.env.COINHUB_USERID}&token=${process.env.COINHUB_TOKEN}&channel=coinhub-prd`
-    ),
-  getBalanceBySymbol: (symbol: string, data: any) => {
-    if (data) {
-      return data.find((x: { symbol: string }) => x.symbol === symbol);
+    );
+    if (resp.user) {
+      return {
+        data: resp,
+        status: true,
+      };
     }
     return {
-      available: 0,
-      freeze: 0,
+      data: resp,
+      status: false,
+      message: TOKEN_DIED,
     };
   },
-  postTickers: () => rest.post(`https://sapi.coinhub.mn/v1/market/tickers`),
+  postTickers: async () => {
+    const resp: TickersResponse = await rest.post(
+      `https://sapi.coinhub.mn/v1/market/tickers`
+    );
+
+    const _sorted: {
+      volume: number;
+      high: number;
+      deal: number;
+      close: number;
+      low: number;
+      change: number;
+      timestamp: number;
+      market: string;
+    }[] = [];
+
+    Object.keys(resp)
+      .sort((a, b) => resp[b].change - resp[a].change)
+      .forEach((key) => {
+        _sorted.push(resp[key]);
+      });
+    return _sorted;
+  },
   postDeals: (body: DealsParams) =>
     rest.post(
       `https://sapi.coinhub.mn/v1/market/deals?market=${body.symbol}&limit=${body.limit}&last_id=0`

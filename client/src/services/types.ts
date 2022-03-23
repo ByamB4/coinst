@@ -1,3 +1,12 @@
+import {
+  IAssets,
+  IStake,
+  IBalance,
+  IBank,
+  IBankAddress,
+  IFiat,
+  IUser,
+} from "interfaces";
 export interface GetStoriesParams {
   username: string;
 }
@@ -18,4 +27,34 @@ export interface ChartParams {
 export interface DealsParams {
   symbol: "IHC/MNT";
   limit: number;
+}
+
+export interface PostInitResponse {
+  user: IUser;
+  assets: IAssets[];
+  balance: IBalance[];
+  fiats: IFiat[];
+  bankAddress: IBankAddress[];
+  ieoID?: any;
+  ieo?: any;
+  banks: IBank[];
+  stake: IStake;
+  s: number;
+  forgetPwd: {
+    needVerifyID: boolean;
+    verifyIDLength: number;
+  };
+}
+
+export interface TickersResponse {
+  [key: string]: {
+    volume: number;
+    high: number;
+    deal: number;
+    close: number;
+    low: number;
+    change: number;
+    timestamp: number;
+    market: string;
+  };
 }
