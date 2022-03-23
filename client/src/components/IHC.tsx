@@ -1,16 +1,4 @@
 import { FC, useEffect, useRef, useState } from "react";
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  Area,
-  AreaChart,
-  ResponsiveContainer,
-} from "recharts";
 import { ChartService, StoryService } from "services";
 
 const data2 = [
@@ -86,51 +74,7 @@ const IHChart: FC = () => {
     return fetch();
   }, []);
 
-  return (
-    <div ref={chartRef}>
-      <LineChart
-        width={1500}
-        height={700}
-        data={data}
-        margin={{
-          top: 50,
-          right: 0,
-          left: 0,
-          bottom: 50,
-        }}
-      >
-        <CartesianGrid strokeDasharray="0 1" />
-        <YAxis />
-        <Tooltip />
-        {/* <Legend /> */}
-        <Line
-          type="basisOpen"
-          dataKey="mnt"
-          dot={false}
-          stroke="#4714A1"
-          strokeWidth={1.5}
-          activeDot={{ r: 6 }}
-        />
-      </LineChart>
-      <AreaChart
-        width={1500}
-        height={700}
-        data={data2}
-        margin={{
-          top: 10,
-          right: 30,
-          left: 0,
-          bottom: 0,
-        }}
-      >
-        <CartesianGrid strokeDasharray="3 3" />
-        <XAxis dataKey="name" />
-        <YAxis />
-        <Tooltip />
-        <Area type="monotone" dataKey="pv" stroke="#82ca9d" fill="#82ca9d" />
-      </AreaChart>
-    </div>
-  );
+  return <div ref={chartRef}></div>;
 };
 
 export default IHChart;
