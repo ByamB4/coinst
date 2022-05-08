@@ -25,7 +25,7 @@ export interface ChartParams {
 }
 
 export interface DealsParams {
-  symbol: "IHC/MNT";
+  symbol: "IHC/MNT" | "MNDT/MNT";
   limit: number;
 }
 

@@ -3,12 +3,15 @@ import { MainLayout } from "layouts";
 import type { NextPage } from "next";
 import { useEffect, useState } from "react";
 import { CoinhubService } from "services";
+import { getBalanceByMarket, getBalanceBySymbol } from "utils";
 
 const INTERVAL_SECONDS = 5;
 const INTERVAL_MILLISECONDS = INTERVAL_SECONDS * 1000;
 
 const Home: NextPage = () => {
   const [initData, setInitData] = useState<any>();
+  const [itoken, setIToken] = useState<string>("");
+  const [token, setToken] = useState<string>(process.env.COINHUB_TOKEN || "");
   const [status, setStatus] = useState<boolean>(false);
   const [tickersData, setTickersData] = useState<
     {
@@ -26,16 +29,44 @@ const Home: NextPage = () => {
   useEffect(() => {
     const interval = setInterval(async () => {
       // ======= START POSTINIT =======
-      const postInitData = (await CoinhubService.postInit()) as any;
+      const postInitData = (await CoinhubService.postInit(token)) as any;
       setStatus(postInitData.status);
       setInitData(postInitData.data);
       // ======= END POSTINIT =======
 
-      if (postInitData.status) {
-        console.log("[+] Login success");
-      }
       const postTickersData = (await CoinhubService.postTickers()) as any;
       setTickersData(postTickersData);
+      if (postInitData.status) {
+        const mndtMNT = getBalanceByMarket(postTickersData, "MNDT/MNT");
+        const result = CoinhubService.processDealsMNDT(mndtMNT);
+        if (result.action === "buy") {
+          const mntBalance = getBalanceBySymbol(
+            postInitData.data.balance,
+            "MNT"
+          );
+          const resp = await CoinhubService.orderCreate({
+            action: "buy",
+            amount: mntBalance?.available,
+            symbol: "MNDT/MNT",
+            token,
+          });
+          console.log(`[+] Buy`);
+        }
+        if (result.action === "sell") {
+          const resp = await CoinhubService.orderCreate({
+            action: "sell",
+            amount: getBalanceBySymbol(postInitData?.data.balance, "MNDT")
+              ?.available,
+            symbol: "MNDT/MNT",
+            token,
+          });
+          console.log(`[-] Sell`);
+        }
+        if (result.action === "stay") {
+          console.log(`[+] Stay`);
+        }
+      }
+
       // setData(initData.data);
       // setIhcBalance(getBalanceBySymbol("IHC", initData.data.balance));
       // const tickers: any = await CoinhubService.postTickers();
@@ -71,26 +102,42 @@ const Home: NextPage = () => {
     }, INTERVAL_MILLISECONDS + 1000);
 
     return () => clearInterval(interval);
-  }, []);
-
-  // const getUserTotalBalance = () => {
-  //   console.log(data);
-  //   const a = data?.balance.find((x: { symbol: string }) => x.symbol === "MNT");
-  //   if (a) {
-  //     return a.available + a.freeze;
-  //   }
-  //   return 0;
-  // };
+  }, [token]);
 
   return (
     <MainLayout title={TITLE.homepage.index} className="flex flex-col gap-8">
       {status ? (
         <div>
           <div>User: {initData?.user?.username || ""}</div>
+          <div>
+            Balance (MNT):{" "}
+            {getBalanceBySymbol(initData?.balance, "MNT")?.available}
+          </div>
+          <div>
+            Balance (MNDT):{" "}
+            {getBalanceBySymbol(initData?.balance, "MNDT")?.available}
+          </div>
+          <div>
+            Current MNDT:{" "}
+            {JSON.stringify(getBalanceByMarket(tickersData, "MNDT/MNT")?.close)}
+          </div>
         </div>
       ) : (
         <>
-          <h1>TOKEN died</h1>
+          <div className="flex gap-4">
+            Token:{" "}
+            <input
+              value={itoken}
+              onChange={(e) => setIToken(e.target.value)}
+              className="rounded-md text-black"
+            />
+            <button
+              className="border rounded-lg"
+              onClick={() => setToken(itoken)}
+            >
+              ok
+            </button>
+          </div>
         </>
       )}
       <div className="relative overflow-x-auto shadow-md sm:rounded-lg">

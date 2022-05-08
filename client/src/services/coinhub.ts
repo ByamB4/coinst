@@ -4,9 +4,9 @@ import { DealsParams, PostInitResponse, TickersResponse } from "./types";
 import { IBalance } from "interfaces";
 
 const CoinhubService = {
-  postInit: async () => {
+  postInit: async (token: string) => {
     const resp = await rest.post<PostInitResponse>(
-      `https://sapi.coinhub.mn//v1/init?userid=${process.env.COINHUB_USERID}&token=${process.env.COINHUB_TOKEN}&channel=coinhub-prd`
+      `https://sapi.coinhub.mn//v1/init?userid=${process.env.COINHUB_USERID}&token=${token}&channel=coinhub-prd`
     );
     if (resp.user) {
       return {
@@ -85,14 +85,49 @@ const CoinhubService = {
       return { action: "stay", percent: latestPercent };
     }
   },
+  processDealsMNDT: (
+    data: {
+      change: number,
+      close: number
+      deal: number
+      high: number
+      low: number
+      market: string
+      open: number
+      timestamp: number
+      volume: number
+    }
+  ): {
+    action: 'sell' | 'buy' | 'stay';
+    percent: number;
+  } => {
+    const sellLimit = 0.99970
+    const buyLimit = 1.00045
+    if (Number(data.close) > buyLimit) {
+      return {
+        action: "sell",
+        percent: data.close,
+      }
+    }
+    else if (Number(data.close) < sellLimit) {
+      return {
+        action: 'buy',
+        percent: data.close,
+      }
+    }
+    else {
+      return {
+        action: 'stay',
+        percent: data.close,
+      }
+    }
+  },
 
-  orderCreate: (body: { action: "buy" | "sell"; amount: number }) => {
+  orderCreate: (body: { action: "buy" | "sell"; amount?: number, symbol: string, token: string }) => {
     rest.post(
-      `https://sapi.coinhub.mn/v1/order/create?userid=${
-        process.env.COINHUB_USERID
-      }&token=${process.env.COINHUB_TOKEN}&channel=coinhub-prd&amount=${
-        body.amount
-      }&side=${body.action === "buy" ? "2" : "1"}&market=IHC/MNT`
+      `https://sapi.coinhub.mn/v1/order/create?userid=${process.env.COINHUB_USERID
+      }&token=${body.token}&channel=coinhub-prd&amount=${body.amount
+      }&side=${body.action === "buy" ? "2" : "1"}&market=${body.symbol}`
     );
   },
 };

@@ -2,6 +2,7 @@ type SYMBOLS = "CHB" | "IHC" | "MNT" | "BTC";
 
 export interface IBalance {
   symbol: SYMBOLS;
+  market: string;
   available: number;
   freeze: number;
 }
